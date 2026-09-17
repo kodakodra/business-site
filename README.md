@@ -1,68 +1,128 @@
 # Business Site
 
-A configurable, production-minded website starter for small businesses and service providers.
+A configurable brochure-style website starter for small businesses and service providers.
 
-The goal is simple: one reusable codebase that can be adapted to many types of businesses without rebuilding the site from scratch.
+The project is deliberately reusable. The same application can be adapted for an agency, consultant, freelancer, trade, local service, studio, professional service, or another business whose main goal is to explain what it does and generate enquiries.
 
-## What this project is
+Portfolio and e-commerce sites are intentionally out of scope here; this project focuses on service/brochure-style businesses.
 
-This project is being developed as a reusable business website foundation rather than a website for one fictional company.
+## Current version
 
-It is intended to support businesses such as:
+The first working version uses plain PHP and a small amount of CSS. There is no framework and no database yet. The goal is to keep the foundation easy to understand, cheap to host, and straightforward to customise.
 
-- Web and software services
-- Consultants and freelancers
-- Creative studios and agencies
-- Trades and home services
-- Local professional services
-- Booking-based businesses
-- Small companies selling services or packages
+The demo business is fictional. Its details live in `config/business.php` so they can be replaced without changing the page templates.
 
-Business-specific content should live in configuration/data wherever practical. The site structure, components, accessibility, responsive behaviour, and general functionality should remain reusable.
+## Requirements
 
-## Project principles
+You need:
 
-- **Configuration over duplication** — change business data before changing application code.
-- **Documentation first** — assume the person setting this up may not be a developer.
-- **Accessible by default** — semantic HTML, keyboard support, readable contrast, labels, and useful focus states.
-- **Responsive by default** — the site must work on phones, tablets, and desktop screens.
-- **Production-minded** — sensible environment configuration, validation, error handling, security basics, and deployment documentation.
-- **Simple dependencies** — avoid adding packages unless they solve a real problem.
-- **Maintainable structure** — separate presentation, business content, configuration, and infrastructure concerns.
+- PHP 8.2 or newer
+- Git
 
-## Current status
+Composer is not currently required. It is included later only if the project gains a dependency that justifies it.
 
-The repository is at the initial project stage. The application architecture, technology stack, and first reusable page system will be added on the `feature/business-startup` branch.
+## Get the project
 
-## Getting started
+Clone the repository:
 
-Setup instructions will be added as the application is established. They will cover prerequisites, installation, configuration, local development, testing, production builds, deployment, and common troubleshooting steps.
+```bash
+git clone https://github.com/kodakodra/business-site.git
+cd business-site
+```
 
-## Configuration concept
+Switch to the development branch when working on this project:
 
-A business should eventually be able to define things such as:
+```bash
+git checkout feature/business-startup
+git pull origin feature/business-startup
+```
 
-- Business name and tagline
-- Logo and visual identity
-- Contact details
-- Service categories
-- Services and pricing
-- Opening hours
-- Service areas
-- Calls to action
-- Testimonials
-- Frequently asked questions
-- Social links
-- Booking or enquiry behaviour
+## Run it locally
 
-The exact schema will be documented when implemented.
+From the project directory:
 
-## Development workflow
+```bash
+php -S localhost:8000 -t public
+```
 
-Work is developed on feature branches and merged into `main` when complete.
+Then open:
 
-Keep commits focused and descriptive. Update documentation whenever setup, configuration, behaviour, or deployment requirements change.
+http://localhost:8000
+
+To stop the development server, press `Ctrl+C` in the terminal running it.
+
+## Change the business details
+
+Open:
+
+`config/business.php`
+
+This is the main business-content file. It currently controls the business name, tagline, description, contact details, navigation, services, highlights, and primary call to action.
+
+For a new business, change the values there first. Do not edit the HTML templates just to change normal business content.
+
+## Project structure
+
+```text
+business-site/
+├── config/
+│   └── business.php       # Business-specific content and settings
+├── public/
+│   ├── index.php          # Web entry point
+│   └── css/app.css        # Site styles
+├── src/
+│   └── helpers.php        # Small reusable PHP helpers
+├── templates/
+│   ├── home.php           # Home page content
+│   └── layout.php         # Shared HTML document/header/footer
+├── .env.example           # Example environment settings
+├── .gitignore
+├── composer.json
+└── README.md
+```
+
+### What happens when a visitor opens the site?
+
+1. The web server points at `public/`.
+2. `public/index.php` loads the business configuration and shared helpers.
+3. The requested path is checked.
+4. The appropriate template is rendered.
+5. `templates/layout.php` supplies the shared document, navigation and footer.
+
+This keeps public web files separate from configuration and application code.
+
+## Environment configuration
+
+`.env.example` documents the environment values we expect the project to use. The current first version does not require an environment loader, so do not create a real `.env` file unless a later feature requires one.
+
+Never commit passwords, API keys, SMTP credentials, private tokens, or other secrets to Git.
+
+## Development rules
+
+Keep business content in configuration whenever practical. Keep reusable markup in templates. Keep browser-facing assets under `public/`.
+
+Make small, descriptive commits. Update the README whenever setup or behaviour changes.
+
+## Roadmap
+
+The project will grow toward a complete reusable business-site system. Planned areas include:
+
+- Reusable content sections and page types
+- Better configuration for branding and business categories
+- Proper contact/enquiry forms with validation and spam protection
+- Email delivery configuration
+- Optional testimonials, FAQs, service areas, opening hours and social links
+- Structured metadata and SEO controls
+- Accessibility and responsive testing
+- Error pages and production error handling
+- Security hardening
+- Automated tests
+- Deployment guides for common hosting setups
+
+## Status
+
+This repository is under active development on `feature/business-startup`. The `main` branch is intended to contain completed, reviewable work.
 
 ## License
 
-License details will be added once the intended distribution model is decided.
+License details will be decided when the intended distribution model is established.

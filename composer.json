@@ -1,0 +1,11 @@
+{
+  "name": "business-site",
+  "description": "Configurable brochure-style business website starter",
+  "type": "project",
+  "require": {
+    "php": ">=8.2"
+  },
+  "scripts": {
+    "serve": "php -S localhost:8000 -t public"
+  }
+}
