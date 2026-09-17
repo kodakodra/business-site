@@ -5,6 +5,7 @@ declare(strict_types=1);
 $title = $pageTitle ?? $business['name'];
 $description = $pageDescription ?? $business['description'];
 $currentPath = rtrim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/', '/') ?: '/';
+$branding = $business['branding'] ?? [];
 ?>
 <!doctype html>
 <html lang="en">
@@ -12,9 +13,18 @@ $currentPath = rtrim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="<?= e($description) ?>">
-    <meta name="theme-color" content="#172033">
+    <meta name="theme-color" content="<?= e($branding['ink'] ?? '#172033') ?>">
     <title><?= e($title) ?></title>
     <link rel="stylesheet" href="<?= e(url('css/app.css')) ?>">
+    <style>
+        :root {
+            --ink: <?= e($branding['ink'] ?? '#172033') ?>;
+            --accent: <?= e($branding['accent'] ?? '#4f46e5') ?>;
+            --accent-dark: <?= e($branding['accent_dark'] ?? '#3730a3') ?>;
+            --page-background: <?= e($branding['background'] ?? '#f7f8fb') ?>;
+            --soft-background: <?= e($branding['soft_background'] ?? '#edf1f6') ?>;
+        }
+    </style>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -44,7 +54,7 @@ $currentPath = rtrim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: 
 <footer class="site-footer">
     <div class="container footer-grid">
         <div>
-            <a class="brand footer-brand" href="/"> <span class="brand-mark" aria-hidden="true"></span><?= e($business['name']) ?></a>
+            <a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true"></span><?= e($business['name']) ?></a>
             <p><?= e($business['tagline']) ?></p>
             <p class="footer-muted"><?= e($business['service_area']) ?></p>
         </div>
@@ -54,14 +64,21 @@ $currentPath = rtrim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: 
             <p><a href="tel:<?= e($business['phone']) ?>"><?= e($business['phone']) ?></a></p>
         </div>
         <div>
-            <p class="footer-label">Explore</p>
-            <p><a href="/services">Services</a></p>
-            <p><a href="/about">About</a></p>
-            <p><a href="/faq">FAQ</a></p>
+            <p class="footer-label">Opening hours</p>
+            <?php foreach ($business['opening_hours'] as $hours): ?>
+                <p><strong><?= e($hours['days']) ?>:</strong> <?= e($hours['hours']) ?></p>
+            <?php endforeach; ?>
         </div>
     </div>
-    <div class="container footer-bottom">
+    <div class="container footer-bottom footer-bottom-row">
         <p>© <?= date('Y') ?> <?= e($business['name']) ?>. All rights reserved.</p>
+        <?php if (!empty($business['social_links'])): ?>
+            <div class="social-links" aria-label="Social links">
+                <?php foreach ($business['social_links'] as $social): ?>
+                    <a href="<?= e($social['href']) ?>" target="_blank" rel="noopener noreferrer"><?= e($social['label']) ?></a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
 </footer>
 </body>
