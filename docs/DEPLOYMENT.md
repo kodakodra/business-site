@@ -9,8 +9,8 @@
 5. Set `APP_DEBUG=0`.
 6. Set `SITE_URL` to the site's real HTTPS URL.
 7. Set `CONTACT_EMAIL` to the address that should receive enquiries.
-8. Configure the PHPMailer SMTP settings (`MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_ENCRYPTION` and `MAIL_AUTH`).
-9. Set `MAIL_FROM` to a real mailbox/domain address accepted by the SMTP provider and set `MAIL_FROM_NAME` to the business display name.
+8. Configure the PHPMailer SMTP settings (`MAIL_MAILER`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_ENCRYPTION` and `MAIL_AUTH`).
+9. Set `MAIL_FROM_ADDRESS` to a real mailbox/domain address accepted by the SMTP provider and `MAIL_FROM_NAME` to the business display name.
 10. Enable HTTPS at the host.
 11. Replace the example legal content and demo business data before launch.
 
@@ -23,14 +23,15 @@ APP_DEBUG=0
 APP_TIMEZONE=Europe/London
 SITE_URL=https://www.example.com
 CONTACT_EMAIL=hello@example.com
-MAIL_FROM=website@example.com
-MAIL_FROM_NAME=Example Business
+MAIL_MAILER=smtp
 MAIL_HOST=smtp.example.com
 MAIL_PORT=587
 MAIL_USERNAME=website@example.com
 MAIL_PASSWORD=replace-with-real-password
 MAIL_ENCRYPTION=tls
 MAIL_AUTH=1
+MAIL_FROM_ADDRESS=website@example.com
+MAIL_FROM_NAME="Example Business"
 MAIL_TIMEOUT=15
 ```
 
@@ -56,7 +57,7 @@ The contact form uses PHPMailer with SMTP. It does not depend on PHP's built-in 
 
 The SMTP provider must allow the configured sender address and provide the hostname, port, authentication and TLS requirements used in `.env`. The application supports STARTTLS, implicit TLS and explicitly configured unencrypted SMTP for suitable development environments.
 
-The visitor's address is placed in `Reply-To`, while `MAIL_FROM` remains the authenticated/configured sender address.
+The visitor's address is placed in `Reply-To`, while `MAIL_FROM_ADDRESS` remains the authenticated/configured sender address.
 
 See `docs/EMAIL.md` for the full setup and troubleshooting guide.
 
