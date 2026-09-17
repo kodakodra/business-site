@@ -1,6 +1,6 @@
 # Email delivery
 
-The contact form uses [PHPMailer](https://github.com/PHPMailer/PHPMailer) with SMTP. This avoids relying on the PHP `mail()` function or a local sendmail installation and supports authenticated remote mail servers.
+The contact form uses [PHPMailer](https://github.com/PHPMailer/PHPMailer) with SMTP. This avoids relying on PHP's `mail()` function or a local sendmail installation and supports authenticated remote mail servers.
 
 PHPMailer is installed through Composer. Run `composer install` after cloning the project.
 
@@ -14,18 +14,19 @@ Create `.env` from the example:
 cp .env.example .env
 ```
 
-Then configure the SMTP connection, for example:
+The environment naming follows the same convention used by the other project setup:
 
 ```text
 CONTACT_EMAIL=hello@example.com
-MAIL_FROM=hello@example.com
-MAIL_FROM_NAME=Example Business
+MAIL_MAILER=smtp
 MAIL_HOST=smtp.example.com
 MAIL_PORT=587
 MAIL_USERNAME=hello@example.com
 MAIL_PASSWORD=your-smtp-password
 MAIL_ENCRYPTION=tls
 MAIL_AUTH=1
+MAIL_FROM_ADDRESS=hello@example.com
+MAIL_FROM_NAME="Example Business"
 MAIL_TIMEOUT=15
 ```
 
@@ -43,13 +44,9 @@ That is an email configuration/transport problem rather than a contact-form vali
 
 The mailbox that receives website enquiries.
 
-### MAIL_FROM
+### MAIL_MAILER
 
-The sender address used for outbound messages. Use an address permitted by the SMTP provider, preferably on the site's domain.
-
-### MAIL_FROM_NAME
-
-The display name shown alongside `MAIL_FROM`. Defaults to the configured business name when omitted.
+Must be `smtp`. PHPMailer handles SMTP directly; this setting makes the selected transport explicit.
 
 ### MAIL_HOST
 
@@ -77,6 +74,14 @@ Use the encryption mode required by the SMTP provider.
 
 Set to `1` when SMTP authentication is required, or `0` for an SMTP server that accepts unauthenticated connections such as a local development sink.
 
+### MAIL_FROM_ADDRESS
+
+The sender address used for outbound messages. Use an address permitted by the SMTP provider, preferably on the site's domain.
+
+### MAIL_FROM_NAME
+
+The display name shown alongside `MAIL_FROM_ADDRESS`. Defaults to the configured business name when omitted.
+
 ### MAIL_TIMEOUT
 
 SMTP connection timeout in seconds. The application defaults to 15 seconds and enforces a minimum of 5 seconds.
@@ -103,7 +108,7 @@ A successful SMTP submission means the SMTP server accepted the message. It does
 Check the following in order:
 
 - `CONTACT_EMAIL` is correct.
-- `MAIL_FROM` is valid and permitted by the SMTP provider.
+- `MAIL_FROM_ADDRESS` is valid and permitted by the SMTP provider.
 - `MAIL_HOST` and `MAIL_PORT` match the provider's documentation.
 - `MAIL_ENCRYPTION` matches the provider's required TLS mode.
 - `MAIL_AUTH` matches whether authentication is required.
@@ -116,4 +121,4 @@ Do not commit `.env`, SMTP passwords or other private credentials.
 
 ## Dependency note
 
-PHPMailer is the application's email transport dependency. Composer is therefore required for a complete installation; the project is no longer dependency-free.
+PHPMailer is the application's email transport dependency. Composer is therefore required for a complete installation; the project is not dependency-free.
