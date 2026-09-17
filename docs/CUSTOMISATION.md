@@ -52,25 +52,26 @@ The contact form validates input server-side and uses a CSRF token, honeypot fie
 
 Messages are sent through PHPMailer over SMTP. Composer dependencies must be installed before email can be sent.
 
-Set these values in the server's `.env` file:
+The SMTP environment uses the same naming convention as the working mail setup used elsewhere:
 
 ```text
 SITE_URL=https://www.example.com
 CONTACT_EMAIL=hello@example.com
-MAIL_FROM=website@example.com
-MAIL_FROM_NAME=Example Business
+MAIL_MAILER=smtp
 MAIL_HOST=smtp.example.com
 MAIL_PORT=587
 MAIL_USERNAME=website@example.com
 MAIL_PASSWORD=your-smtp-password
 MAIL_ENCRYPTION=tls
 MAIL_AUTH=1
+MAIL_FROM_ADDRESS=website@example.com
+MAIL_FROM_NAME="Example Business"
 MAIL_TIMEOUT=15
 APP_DEBUG=0
 APP_TIMEZONE=Europe/London
 ```
 
-`CONTACT_EMAIL` receives enquiries. `MAIL_FROM` is the authenticated/configured sender and should be permitted by the SMTP provider. The visitor's validated email is placed in `Reply-To`.
+`CONTACT_EMAIL` receives enquiries. `MAIL_FROM_ADDRESS` is the configured sender and should be permitted by the SMTP provider. The visitor's validated email is placed in `Reply-To`.
 
 The supported encryption values are `tls`, `ssl`, `none` or blank. Authentication can be disabled with `MAIL_AUTH=0` for a suitable local development SMTP sink.
 
