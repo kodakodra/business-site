@@ -7,6 +7,11 @@ require $root . '/src/helpers.php';
 $business = require $root . '/config/business.php';
 require $root . '/src/contact.php';
 
+$autoload = $root . '/vendor/autoload.php';
+if (is_file($autoload)) {
+    require_once $autoload;
+}
+
 $passed = 0;
 $failed = 0;
 
@@ -28,6 +33,7 @@ check(count(array_unique(array_column($business['services'], 'slug'))) === count
 check(e('<script>') === '&lt;script&gt;', 'HTML escaping works');
 check(url('services') === '/services', 'URL helper normalises paths');
 check(str_contains(json_ld($business), 'schema.org'), 'structured data is generated');
+check(class_exists('PHPMailer\\PHPMailer\\PHPMailer'), 'PHPMailer dependency is available');
 
 [$validData, $validErrors] = validate_contact([
     'name' => 'Jane Example',
