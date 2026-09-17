@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use PHPMailer\PHPMailer\PHPMailer;
+
 function validate_contact(array $input, array $business): array
 {
     $data = [
@@ -45,8 +47,30 @@ function can_submit_contact(): bool
 
 function send_contact_message(array $data, array $business): bool
 {
+    $basePath = dirname(__DIR__);
+    $autoload = $basePath . '/vendor/autoload.php';
+    if (!is_file($autoload)) {
+        error_log('Contact email unavailable: Composer dependencies are not installed.');
+        return false;
+    }
+    require_once $autoload;
+
     $to = (string) env('CONTACT_EMAIL', $business['email']);
     $from = (string) env('MAIL_FROM', $business['email']);
+    $fromName = (string) env('MAIL_FROM_NAME', $business['name']);
+    $host = trim((string) env('MAIL_HOST', ''));
+    $port = (int) env('MAIL_PORT', '587');
+    $username = (string) env('MAIL_USERNAME', '');
+    $password = (string) env('MAIL_PASSWORD', '');
+    $encryption = strtolower(trim((string) env('MAIL_ENCRYPTION', 'tls')));
+    $auth = env('MAIL_AUTH', '1') !== '0';
+    $timeout = max(5, (int) env('MAIL_TIMEOUT', '15'));
+
+    if (!filter_var($to, FILTER_VALIDATE_EMAIL) || !filter_var($from, FILTER_VALIDATE_EMAIL) || $host === '') {
+        error_log('Contact email unavailable: SMTP settings are incomplete.');
+        return false;
+    }
+
     $safeName = preg_replace('/[\r\n]+/', ' ', $data['name']) ?: 'Website visitor';
     $subject = 'Website enquiry from ' . $safeName;
     $service = $data['service'] !== '' ? $data['service'] : 'Not specified';
@@ -57,12 +81,49 @@ function send_contact_message(array $data, array $business): bool
         'Service: ' . $service, '', 'Message:', $data['message'], '',
         'Sent from ' . site_origin($business),
     ]);
-    $headers = [
-        'From: ' . $from,
-        'Reply-To: ' . $data['email'],
-        'X-Mailer: PHP/' . PHP_VERSION,
-        'Content-Type: text/plain; charset=UTF-8',
-    ];
-    return function_exists('mail') && filter_var($to, FILTER_VALIDATE_EMAIL) && filter_var($from, FILTER_VALIDATE_EMAIL)
-        && mail($to, $subject, $body, implode("\r\n", $headers));
+
+    try {
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host = $host;
+        $mail->Port = $port;
+        $mail->SMTPAuth = $auth;
+        $mail->Timeout = $timeout;
+        $mail->CharSet = 'UTF-8';
+
+        if ($auth) {
+            $mail->Username = $username;
+            $mail->Password = $password;
+        }
+
+        switch ($encryption) {
+            case 'tls':
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                break;
+            case 'ssl':
+                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                break;
+            case 'none':
+            case '':
+                $mail->SMTPSecure = '';
+                break;
+            default:
+                error_log('Contact email unavailable: unsupported MAIL_ENCRYPTION value.');
+                return false;
+        }
+
+        $mail->setFrom($from, $fromName);
+        $mail->addAddress($to);
+        $mail->addReplyTo($data['email'], $safeName);
+        $mail->Subject = $subject;
+        $mail->isHTML(false);
+        $mail->Body = $body;
+        $mail->AltBody = $body;
+        $mail->send();
+
+        return true;
+    } catch (\Throwable $exception) {
+        error_log('Contact email failed: ' . $exception->getMessage());
+        return false;
+    }
 }
