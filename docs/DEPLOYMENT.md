@@ -13,6 +13,20 @@
 9. Enable HTTPS at the host.
 10. Replace the example legal content and demo business data before launch.
 
+## Environment file
+
+Create `.env` from `.env.example` and set real production values, for example:
+
+```text
+APP_DEBUG=0
+APP_TIMEZONE=Europe/London
+SITE_URL=https://www.example.com
+CONTACT_EMAIL=hello@example.com
+MAIL_FROM=website@example.com
+```
+
+Never commit `.env` or place passwords/API keys/private tokens in the repository.
+
 ## Apache
 
 The included `public/.htaccess` sends non-file requests to the PHP front controller. Enable Apache's rewrite module if necessary.
@@ -24,6 +38,16 @@ Configure the site so PHP requests are passed to PHP-FPM and unknown paths are s
 ## Other PHP hosts
 
 Many shared hosts let you select a PHP version and choose a document root. Use `public/` as the document root where possible. If the host does not support this layout, do not move files casually; adjust the server configuration instead.
+
+## Email delivery
+
+The contact form uses PHP's built-in `mail()` function. A local development machine often has no mail transport, so the direct-email fallback can appear locally even though the form itself is working correctly.
+
+For production, the hosting environment must provide a working mail transport and permit the configured `MAIL_FROM` address/domain. See `docs/EMAIL.md` for the full setup and troubleshooting guide.
+
+A successful PHP `mail()` call means the message was handed to the host's mail transport; it does not guarantee inbox delivery.
+
+For important business mail, configure the domain's email authentication and use the mail provider recommended by the hosting provider.
 
 ## Testing after deployment
 
@@ -39,12 +63,21 @@ Check:
 - `/robots.txt`
 - `/sitemap.xml`
 - an intentionally invalid URL for the 404 page
-- contact form validation
-- a real contact submission
+- contact form validation with invalid and valid values
+- a real contact submission from an external browser/device
+- receipt of the message at `CONTACT_EMAIL`
 
-## Email deliverability
+Also run the repository smoke tests before deployment:
 
-A successful PHP `mail()` call means the message was handed to the host's mail transport; it does not guarantee inbox delivery. For important business mail, configure the domain's email authentication and use the mail provider recommended by the host.
+```bash
+composer test
+```
+
+or:
+
+```bash
+php tests/smoke.php
+```
 
 ## Backups
 
