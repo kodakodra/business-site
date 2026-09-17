@@ -7,22 +7,31 @@ $business = require $basePath . '/config/business.php';
 require $basePath . '/src/helpers.php';
 
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+$path = rtrim($path, '/') ?: '/';
 
-switch ($path) {
-    case '/':
-    case '/index.php':
-        $pageTitle = $business['name'] . ' | ' . $business['tagline'];
-        $pageDescription = $business['description'];
-        ob_start();
-        require $basePath . '/templates/home.php';
-        $content = ob_get_clean();
-        break;
-    default:
-        http_response_code(404);
-        $pageTitle = 'Page not found | ' . $business['name'];
-        $pageDescription = 'The requested page could not be found.';
-        $content = '<section class="section"><div class="container narrow"><p class="eyebrow">404</p><h1>Page not found</h1><p>The page you requested does not exist.</p><a class="button" href="/">Return home</a></div></section>';
-        break;
+$routes = [
+    '/' => ['template' => 'home.php', 'title' => $business['name'] . ' | ' . $business['tagline'], 'description' => $business['description']],
+    '/services' => ['template' => 'services.php', 'title' => 'Services | ' . $business['name'], 'description' => 'Explore the services offered by ' . $business['name'] . '.'],
+    '/about' => ['template' => 'about.php', 'title' => 'About | ' . $business['name'], 'description' => 'Learn how ' . $business['name'] . ' works and what customers can expect.'],
+    '/faq' => ['template' => 'faq.php', 'title' => 'FAQ | ' . $business['name'], 'description' => 'Frequently asked questions about ' . $business['name'] . '.'],
+    '/contact' => ['template' => 'contact.php', 'title' => 'Contact | ' . $business['name'], 'description' => 'Contact ' . $business['name'] . ' about your requirements.'],
+];
+
+if (isset($routes[$path])) {
+    $route = $routes[$path];
+    $pageTitle = $route['title'];
+    $pageDescription = $route['description'];
+
+    ob_start();
+    require $basePath . '/templates/' . $route['template'];
+    $content = ob_get_clean();
+} else {
+    http_response_code(404);
+    $pageTitle = 'Page not found | ' . $business['name'];
+    $pageDescription = 'The requested page could not be found.';
+    ob_start();
+    require $basePath . '/templates/404.php';
+    $content = ob_get_clean();
 }
 
 require $basePath . '/templates/layout.php';
