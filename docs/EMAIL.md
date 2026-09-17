@@ -1,83 +1,124 @@
 # Email delivery
 
-The contact form uses PHP's built-in `mail()` function. The application validates and protects the form before attempting delivery, but PHP itself still needs a mail transport supplied by the operating system or hosting provider.
+The contact form uses [PHPMailer](https://github.com/PHPMailer/PHPMailer) with SMTP. This avoids relying on PHP's `mail()` function or a local sendmail installation and supports authenticated remote mail servers.
+
+PHPMailer is installed through Composer. Run `composer install` after cloning the project.
 
 ## Local development
 
-A normal developer machine may not have a mail transport configured.
+A developer machine does not need a local mail server, but the application does need access to an SMTP server. For local testing, use a real SMTP account or a local development SMTP service and set the values in `.env`.
 
-When that happens, submitting the contact form can show:
+Create `.env` from the example:
+
+```bash
+cp .env.example .env
+```
+
+The environment naming follows the same convention used by the other project setup:
+
+```text
+CONTACT_EMAIL=hello@example.com
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USERNAME=hello@example.com
+MAIL_PASSWORD=your-smtp-password
+MAIL_ENCRYPTION=tls
+MAIL_AUTH=1
+MAIL_FROM_ADDRESS=hello@example.com
+MAIL_FROM_NAME="Example Business"
+MAIL_TIMEOUT=15
+```
+
+The exact host, username, password, port and encryption settings come from the mailbox or SMTP provider. Port `587` with STARTTLS and port `465` with implicit TLS are both supported by the application.
+
+When the SMTP configuration is missing or invalid, the form deliberately does not claim that an email was sent. It shows:
 
 > We could not send your enquiry right now. Please email us directly instead.
 
-That is expected. The application is reporting that PHP could not hand the message to a configured mail transport. The smoke tests deliberately do not send real email.
+That is an email configuration/transport problem rather than a contact-form validation failure.
 
-You do not need to configure email just to work on the site's layout or run its tests.
-
-## Production setup
-
-Create a server-side `.env` file from `.env.example` and set real values:
-
-```text
-SITE_URL=https://www.example.com
-CONTACT_EMAIL=hello@example.com
-MAIL_FROM=website@example.com
-APP_DEBUG=0
-APP_TIMEZONE=Europe/London
-```
+## Environment settings
 
 ### CONTACT_EMAIL
 
-This is the address that receives website enquiries.
+The mailbox that receives website enquiries.
 
-Use a real mailbox that the business monitors.
+### MAIL_MAILER
 
-### MAIL_FROM
+Must be `smtp`. PHPMailer handles SMTP directly; this setting makes the selected transport explicit.
 
-This is the sender address used by PHP when submitting the message to the host's mail transport.
+### MAIL_HOST
 
-Use an address that the hosting provider permits. A domain-based sender that matches the website's domain is generally preferable to an unrelated address.
+SMTP server hostname supplied by the mail provider.
 
-## Hosting provider requirements
+### MAIL_PORT
 
-Before launch, confirm that the hosting provider:
+SMTP port. Common secure choices are `587` for STARTTLS or `465` for implicit TLS.
 
-1. Allows PHP `mail()`.
-2. Has a working outgoing mail transport.
-3. Allows the chosen `MAIL_FROM` address/domain.
-4. Does not require a provider-specific SMTP library instead.
+### MAIL_USERNAME / MAIL_PASSWORD
 
-The exact control-panel settings vary between hosts, so use the host's own PHP/email documentation for transport-specific configuration.
+SMTP credentials when the provider requires authentication. Keep the password out of Git and store it only in `.env` or the host's secret/environment settings.
+
+### MAIL_ENCRYPTION
+
+Supported values are:
+
+- `tls` — STARTTLS
+- `ssl` — implicit TLS
+- `none` or blank — no encryption
+
+Use the encryption mode required by the SMTP provider.
+
+### MAIL_AUTH
+
+Set to `1` when SMTP authentication is required, or `0` for an SMTP server that accepts unauthenticated connections such as a local development sink.
+
+### MAIL_FROM_ADDRESS
+
+The sender address used for outbound messages. Use an address permitted by the SMTP provider, preferably on the site's domain.
+
+### MAIL_FROM_NAME
+
+The display name shown alongside `MAIL_FROM_ADDRESS`. Defaults to the configured business name when omitted.
+
+### MAIL_TIMEOUT
+
+SMTP connection timeout in seconds. The application defaults to 15 seconds and enforces a minimum of 5 seconds.
+
+## How the contact message is addressed
+
+The application sets the configured business address as the recipient and sender, and puts the visitor's validated email address in `Reply-To`. The visitor's address is never used as the sender address. This keeps the outbound message aligned with the SMTP account/domain while making normal replies go to the person who submitted the enquiry.
 
 ## Testing a deployed site
 
 After deployment:
 
 1. Open `/contact`.
-2. Submit a genuine test enquiry using a monitored test address.
+2. Submit a genuine test enquiry using a monitored visitor address.
 3. Confirm the form reports success.
 4. Confirm the message arrives at `CONTACT_EMAIL`.
-5. Reply to the received message and confirm the visitor's address is available as the reply target.
-6. Check spam/junk folders if the message does not appear in the inbox.
+5. Reply to the received message and confirm the reply goes to the visitor's address.
+6. Check spam/junk folders if necessary.
 
-A successful PHP `mail()` call means the message was accepted by the configured transport. It does not prove final inbox delivery.
+A successful SMTP submission means the SMTP server accepted the message. It does not guarantee final inbox delivery.
 
 ## When mail does not arrive
 
 Check the following in order:
 
 - `CONTACT_EMAIL` is correct.
-- `MAIL_FROM` is a valid, permitted sender.
-- The hosting provider supports PHP `mail()`.
-- The site's server time and PHP configuration are sensible.
+- `MAIL_FROM_ADDRESS` is valid and permitted by the SMTP provider.
+- `MAIL_HOST` and `MAIL_PORT` match the provider's documentation.
+- `MAIL_ENCRYPTION` matches the provider's required TLS mode.
+- `MAIL_AUTH` matches whether authentication is required.
+- `MAIL_USERNAME` and `MAIL_PASSWORD` are correct when authentication is enabled.
 - The message is not in spam or quarantine.
 - The domain's email authentication is configured as recommended by the mail provider.
-- The host's mail logs or support documentation show successful delivery attempts.
+- Server/PHP logs contain no SMTP connection or authentication errors.
 
-Do not put SMTP passwords or other private mail credentials into Git. Keep secrets in `.env` or the hosting provider's environment/secret settings.
+Do not commit `.env`, SMTP passwords or other private credentials.
 
-## Using SMTP instead
+## Dependency note
 
-This starter intentionally does not include an SMTP library or a third-party mail service. That keeps the baseline dependency-free.
-
-If a future project requires authenticated SMTP, transactional email, attachments, delivery tracking or high-volume email, replace the `mail()` implementation in `src/contact.php` with a suitable mail provider/library and document that provider's setup separately.
+PHPMailer is the application's email transport dependency. Composer is therefore required for a complete installation; the project is not dependency-free.

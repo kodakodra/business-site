@@ -23,6 +23,8 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           coverage: none
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist
       - name: Lint PHP files
         shell: bash
         run: |

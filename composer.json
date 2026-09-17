@@ -3,7 +3,8 @@
     "description": "Reusable PHP brochure-site foundation for small businesses and service providers.",
     "type": "project",
     "require": {
-        "php": ">=8.2"
+        "php": ">=8.2",
+        "phpmailer/phpmailer": "^7.0"
     },
     "scripts": {
         "serve": "php -S localhost:8000 -t public public/router.php",
