@@ -10,6 +10,22 @@ return [
     'phone' => '+44 20 0000 0000',
     'location' => 'United Kingdom',
     'service_area' => 'Serving clients locally and remotely across the UK',
+    'branding' => [
+        'ink' => '#172033',
+        'accent' => '#4f46e5',
+        'accent_dark' => '#3730a3',
+        'background' => '#f7f8fb',
+        'soft_background' => '#edf1f6',
+    ],
+    'opening_hours' => [
+        ['days' => 'Monday – Friday', 'hours' => '09:00 – 17:30'],
+        ['days' => 'Saturday', 'hours' => 'By appointment'],
+        ['days' => 'Sunday', 'hours' => 'Closed'],
+    ],
+    'social_links' => [
+        ['label' => 'LinkedIn', 'href' => 'https://www.linkedin.com/'],
+        ['label' => 'Facebook', 'href' => 'https://www.facebook.com/'],
+    ],
     'primary_action' => [
         'label' => 'Request a quote',
         'href' => '/contact',
