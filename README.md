@@ -178,6 +178,7 @@ business-site/
 ├── .env.example
 ├── .gitignore
 ├── composer.json
+├── LICENSE
 └── README.md
 ```
 
@@ -225,6 +226,10 @@ The intended model is: **configure the business, configure SMTP, deploy the site
 
 The reusable brochure/service-business starter is feature-complete. Future work should be treated as a new project or an explicitly reopened feature rather than an expected part of this baseline.
 
+## Support
+
+If you find this project useful or use it in your own work, donations are appreciated. They are completely optional and are not required to use, modify or distribute the project under the MIT License. Any support helps fund future development and other open-source work.
+
 ## License
 
-No distribution licence has been selected yet. Add the appropriate licence before publishing this repository as a reusable package.
+This project is licensed under the MIT License. See `LICENSE` for the full licence text.
