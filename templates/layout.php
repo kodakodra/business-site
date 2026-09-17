@@ -23,10 +23,11 @@ $branding = $business['branding'] ?? [];
             --accent-dark: <?= e($branding['accent_dark'] ?? '#3730a3') ?>;
             --page-background: <?= e($branding['background'] ?? '#f7f8fb') ?>;
             --soft-background: <?= e($branding['soft_background'] ?? '#edf1f6') ?>;
+            --soft: <?= e($branding['soft_background'] ?? '#edf1f6') ?>;
         }
     </style>
 </head>
-<body>
+<body style="background: var(--page-background);">
 <a class="skip-link" href="#main">Skip to content</a>
 
 <header class="site-header">
