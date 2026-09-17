@@ -17,20 +17,20 @@ function validate_contact(array $input, array $business): array
     if ($data['website'] !== '') {
         return [$data, ['form' => 'Your message could not be submitted.']];
     }
-    if ($data['name'] === '' || mb_strlen($data['name']) < 2 || mb_strlen($data['name']) > 100 || preg_match('/[\r\n]/', $data['name'])) {
+    if ($data['name'] === '' || strlen($data['name']) < 2 || strlen($data['name']) > 100 || preg_match('/[\r\n]/', $data['name'])) {
         $errors['name'] = 'Please enter your name.';
     }
-    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL) || mb_strlen($data['email']) > 254) {
+    if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL) || strlen($data['email']) > 254) {
         $errors['email'] = 'Please enter a valid email address.';
     }
-    if ($data['phone'] !== '' && (mb_strlen($data['phone']) > 40 || !preg_match('/^[0-9+().\s-]+$/', $data['phone']))) {
+    if ($data['phone'] !== '' && (strlen($data['phone']) > 40 || !preg_match('/^[0-9+().\s-]+$/', $data['phone']))) {
         $errors['phone'] = 'Please enter a valid phone number or leave this blank.';
     }
     $serviceSlugs = array_column($business['services'], 'slug');
     if ($data['service'] !== '' && !in_array($data['service'], $serviceSlugs, true)) {
         $errors['service'] = 'Please choose a valid service.';
     }
-    if ($data['message'] === '' || mb_strlen($data['message']) < 20 || mb_strlen($data['message']) > 3000) {
+    if ($data['message'] === '' || strlen($data['message']) < 20 || strlen($data['message']) > 3000) {
         $errors['message'] = 'Please tell us a little more about what you need (20-3000 characters).';
     }
     return [$data, $errors];

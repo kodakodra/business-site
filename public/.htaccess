@@ -1,11 +1,7 @@
 RewriteEngine On
 
-# Keep real files and directories available.
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Send all other requests to the PHP front controller.
 RewriteRule ^ index.php [QSA,L]
-
-Options -Indexes
