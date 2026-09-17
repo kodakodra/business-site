@@ -17,21 +17,22 @@ Business-specific content lives primarily in `config/business.php`. The template
 - Configurable branding, business details, services, pricing, hours and social links
 - Server-side contact validation
 - CSRF protection, honeypot spam trap and short submission throttle
-- PHP `mail()` contact delivery with direct-email fallback on failure
+- PHPMailer SMTP contact delivery with configurable authentication and TLS
 - Canonical URLs, Open Graph metadata and Schema.org JSON-LD
 - Dynamic `robots.txt` and `sitemap.xml`
 - Custom 404 and production-friendly 500 response
 - Accessible navigation, labels, focus states, semantic HTML and reduced-motion support
 - Apache rewrite configuration plus PHP built-in development router
-- Smoke tests with no testing framework dependency
+- Smoke tests with dependency checks
 - Beginner-focused customisation and deployment documentation
 
 ## Requirements
 
 - PHP 8.2 or newer
+- Composer
 - Git
 
-Composer is optional. The project currently has no third-party runtime dependencies.
+PHPMailer is installed through Composer. The production application therefore requires the Composer dependencies to be installed before the contact form can send email.
 
 ## Quick start
 
@@ -42,11 +43,19 @@ git clone https://github.com/kodakodra/business-site.git
 cd business-site
 ```
 
-Install the current dependencies (there are none yet, but this keeps the workflow standard):
+Install dependencies:
 
 ```bash
 composer install
 ```
+
+Create a local environment file when you want to run the contact form with SMTP:
+
+```bash
+cp .env.example .env
+```
+
+Set the SMTP values in `.env` using your mail provider's settings. See `docs/EMAIL.md` for the exact fields.
 
 For local development:
 
@@ -54,7 +63,7 @@ For local development:
 composer run serve
 ```
 
-Or without Composer:
+Or:
 
 ```bash
 php -S localhost:8000 -t public public/router.php
@@ -76,7 +85,7 @@ Or:
 php tests/smoke.php
 ```
 
-The smoke test checks the business configuration, helper functions, structured data generation and contact validation without sending email.
+The smoke test checks the business configuration, helper functions, structured data generation, PHPMailer availability and contact validation without sending email.
 
 ## Configure a business
 
@@ -100,39 +109,38 @@ For a detailed guide see `docs/CUSTOMISATION.md`.
 
 ## Contact form and email
 
-The contact form is fully functional, but email delivery depends on the environment where the site is running.
+The contact form is wired to PHPMailer and sends through SMTP. It does not rely on PHP's `mail()` function or a local sendmail installation.
 
-The application uses PHP's built-in `mail()` function. A developer machine often has no mail transport configured, so local submissions may correctly show:
+Configure these values in the server-side `.env` file:
+
+```text
+CONTACT_EMAIL=hello@example.com
+MAIL_FROM=hello@example.com
+MAIL_FROM_NAME=Example Business
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USERNAME=hello@example.com
+MAIL_PASSWORD=your-smtp-password
+MAIL_ENCRYPTION=tls
+MAIL_AUTH=1
+MAIL_TIMEOUT=15
+```
+
+The application supports STARTTLS on port `587`, implicit TLS on port `465`, or no encryption when explicitly configured for a suitable development SMTP server. The visitor's validated email address is used as `Reply-To`, not as the sender address.
+
+When SMTP settings are missing or invalid, the form deliberately shows:
 
 > We could not send your enquiry right now. Please email us directly instead.
 
-This is expected when PHP cannot hand the message to a mail transport. It is not a validation failure and the form does not pretend that an email was sent.
+That indicates an email transport/configuration problem rather than silently pretending the message was sent.
 
-On a real server, configure:
+See `docs/EMAIL.md` and `docs/DEPLOYMENT.md` for setup and troubleshooting.
 
-```text
-SITE_URL=https://www.example.com
-CONTACT_EMAIL=hello@example.com
-MAIL_FROM=website@example.com
-APP_DEBUG=0
-APP_TIMEZONE=Europe/London
-```
-
-The hosting provider must support PHP `mail()` or an equivalent configured transport. `MAIL_FROM` should be an address/domain the host permits sending from. A successful `mail()` call still does not guarantee inbox delivery.
-
-For exact setup and troubleshooting guidance see `docs/EMAIL.md` and `docs/DEPLOYMENT.md`.
-
-`.env` is ignored by Git. Never commit passwords, API keys, private tokens or mail credentials.
+`.env` is ignored by Git. Never commit passwords, API keys, private tokens or SMTP credentials.
 
 ## Environment settings
 
-Copy `.env.example` to `.env` when the application needs local or server-specific settings:
-
-```bash
-cp .env.example .env
-```
-
-The included example values are safe placeholders. Replace them before production use.
+The included `.env.example` contains safe placeholder values for all supported settings. Copy it to `.env` for local/server configuration and replace the example SMTP values before using the contact form.
 
 ## Project structure
 
@@ -148,7 +156,7 @@ business-site/
 │   └── .htaccess              # Apache routing rules
 ├── src/
 │   ├── bootstrap.php         # Environment, headers and application setup
-│   ├── contact.php           # Contact validation and email delivery
+│   ├── contact.php           # Contact validation and PHPMailer delivery
 │   └── helpers.php            # Shared PHP helpers
 ├── templates/
 │   ├── 404.php
@@ -195,25 +203,26 @@ Before launch:
 1. Replace the fictional business content.
 2. Set a real HTTPS `SITE_URL`.
 3. Set `CONTACT_EMAIL` and `MAIL_FROM`.
-4. Confirm the host's PHP mail transport works.
-5. Send and receive a real test enquiry from the deployed site.
-6. Point the domain document root at `public/`.
-7. Set `APP_DEBUG=0`.
-8. Replace the example legal content with wording appropriate to the actual business and jurisdiction.
-9. Replace the example favicon and social links.
-10. Run the smoke tests and manually check every route.
+4. Install Composer dependencies with `composer install`.
+5. Configure and test the PHPMailer SMTP connection.
+6. Send and receive a real test enquiry from the deployed site.
+7. Point the domain document root at `public/`.
+8. Set `APP_DEBUG=0`.
+9. Replace the example legal content with wording appropriate to the actual business and jurisdiction.
+10. Replace the example favicon and social links.
+11. Run the smoke tests and manually check every route.
 
 See `docs/CUSTOMISATION.md`, `docs/EMAIL.md` and `docs/DEPLOYMENT.md` for the detailed setup procedure.
 
 ## Design decisions
 
-This project does not include a database, admin dashboard, CMS, authentication system or third-party frontend framework. Those additions would increase operational complexity and are not necessary for the brochure-site use case.
+This project does not include a database, admin dashboard, CMS, authentication system or third-party frontend framework. PHPMailer is the deliberate exception because reliable SMTP email delivery is a core requirement of the contact workflow.
 
-The intended model is: **configure the business, deploy the site, generate enquiries, maintain the content**.
+The intended model is: **configure the business, configure SMTP, deploy the site, generate enquiries, maintain the content**.
 
 ## Status
 
-`feature/business-startup` is the development branch. The starter is considered feature-complete for the brochure/service-business use case. Future work should be treated as a new project or an explicitly reopened feature rather than an expected part of this baseline.
+The reusable brochure/service-business starter is feature-complete. Future work should be treated as a new project or an explicitly reopened feature rather than an expected part of this baseline.
 
 ## License
 
