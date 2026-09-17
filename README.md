@@ -1,27 +1,39 @@
 # Business Site
 
-A configurable brochure-style website starter for small businesses and service providers.
+A reusable, production-minded PHP brochure website for small businesses and service providers.
 
-The project is deliberately reusable. The same application can be adapted for an agency, consultant, freelancer, trade, local service, studio, professional service, booking-led business, or another company whose main goal is to explain what it does and generate enquiries.
+This project is intentionally focused on businesses whose website's primary job is to explain the business, present services, build trust and generate enquiries. Portfolio and e-commerce functionality belongs in separate projects.
 
-Portfolio and e-commerce sites are intentionally out of scope here; separate projects can handle those requirements.
+## What it supports
 
-## Current version
+The same codebase can be adapted for agencies, consultants, freelancers, trades, local services, professional firms, studios, advisers, maintenance companies and other service-led businesses.
 
-The current version uses plain PHP and CSS. There is no framework and no database yet. The foundation is intentionally small, easy to understand, inexpensive to host, and straightforward to customise.
+Business-specific content lives primarily in `config/business.php`. The templates and application code provide the reusable site behaviour.
 
-The demo business is fictional. Its details live in `config/business.php`, while reusable page structure lives in `templates/`.
+## Included
+
+- Responsive home, services, about, FAQ and contact pages
+- Privacy notice and terms starter pages
+- Configurable branding, business details, services, pricing, hours and social links
+- Server-side contact validation
+- CSRF protection, honeypot spam trap and short submission throttle
+- PHP `mail()` contact delivery with direct-email fallback on failure
+- Canonical URLs, Open Graph metadata and Schema.org JSON-LD
+- Dynamic `robots.txt` and `sitemap.xml`
+- Custom 404 and production-friendly 500 response
+- Accessible navigation, labels, focus states, semantic HTML and reduced-motion support
+- Apache rewrite configuration plus PHP built-in development router
+- Smoke tests with no testing framework dependency
+- Beginner-focused customisation and deployment documentation
 
 ## Requirements
-
-You need:
 
 - PHP 8.2 or newer
 - Git
 
-Composer is not currently required by the application.
+Composer is optional. The project currently has no third-party runtime dependencies.
 
-## Get the project
+## Quick start
 
 Clone the repository:
 
@@ -30,141 +42,157 @@ git clone https://github.com/kodakodra/business-site.git
 cd business-site
 ```
 
-Switch to the development branch when working on this project:
+Install the current dependencies (there are none yet, but this keeps the workflow standard):
 
 ```bash
-git checkout feature/business-startup
-git pull origin feature/business-startup
+composer install
 ```
 
-## Run it locally
+For local development:
 
-From the project directory:
+```bash
+composer run serve
+```
+
+Or without Composer:
 
 ```bash
 php -S localhost:8000 -t public public/router.php
 ```
 
-Then open `http://localhost:8000` in a browser.
+Open `http://localhost:8000`.
 
-The extra `public/router.php` argument is intentional. It lets PHP's built-in development server serve real assets such as CSS directly while sending application URLs such as `/services` and `/contact` through the site's front controller.
+Stop the server with `Ctrl+C`.
 
-For production, configure the web server's document root as `public/`. The included `public/.htaccess` provides the equivalent routing rules for Apache.
+## Run tests
 
-To stop the development server, press `Ctrl+C` in the terminal running it.
+```bash
+composer test
+```
 
-## Pages
+Or:
 
-The current site provides:
+```bash
+php tests/smoke.php
+```
 
-| URL | Purpose |
-| --- | --- |
-| `/` | Home page and primary sales message |
-| `/services` | Full service catalogue |
-| `/about` | Business story, process and trust content |
-| `/faq` | Frequently asked questions |
-| `/contact` | Contact details and enquiry guidance |
-| Any unknown URL | Custom 404 page |
+The smoke test checks the business configuration, helper functions, structured data generation and contact validation without sending email.
 
-## Change the business
+## Configure a business
 
-Open:
+The main configuration file is:
 
 `config/business.php`
 
-This is the main business-content file. It controls the business name, tagline, description, contact information, service area, navigation, calls to action, services, highlights, process steps, testimonial and FAQs.
+Update the business identity, site URL, contact details, service areas, theme, hero copy, services, process, benefits, testimonial, FAQ, opening hours and social links there.
 
-For a new business, change the values in this file first. Avoid editing the templates just to replace ordinary business content.
+For example:
 
-### Things you can change
+```php
+'name' => 'Example Plumbing',
+'phone' => '+44 20 1234 5678',
+'service_areas' => ['Kent', 'East Sussex'],
+```
 
-- Business name and tagline
-- Contact email and phone number
-- Location and service area
-- Navigation labels and links
-- Primary call-to-action wording
-- Services and their deliverables
-- Selling points / highlights
-- How the business works
-- Customer testimonial
-- Frequently asked questions
+Normal business wording should be changed in configuration rather than copied into templates.
 
-The structure is intentionally generic. A real business can replace the demo wording with its own without rebuilding the application.
+For a detailed guide see `docs/CUSTOMISATION.md`.
+
+## Environment settings
+
+Copy `.env.example` to `.env` for local or server configuration:
+
+```text
+APP_DEBUG=0
+APP_TIMEZONE=Europe/London
+SITE_URL=https://www.example.com
+CONTACT_EMAIL=hello@example.com
+MAIL_FROM=website@example.com
+```
+
+`.env` is ignored by Git. Never commit passwords, API keys, private tokens or mail credentials.
+
+The contact form uses PHP's built-in `mail()` transport. The host must provide a working mail transport. A successful call only means the message was accepted by that transport; it does not guarantee inbox delivery.
 
 ## Project structure
 
 ```text
 business-site/
 ├── config/
-│   └── business.php       # Business-specific content
+│   └── business.php          # Business-specific content and theme
 ├── public/
-│   ├── .htaccess          # Apache routing rules
-│   ├── css/app.css        # Browser-facing styles
-│   ├── index.php          # Web entry point and router
-│   └── router.php         # PHP development-server router
+│   ├── css/app.css           # Browser-facing styles
+│   ├── favicon.svg           # Example favicon
+│   ├── index.php             # Application front controller
+│   ├── router.php            # Local PHP server router
+│   └── .htaccess              # Apache routing rules
 ├── src/
-│   └── helpers.php        # Small reusable PHP helpers
+│   ├── bootstrap.php         # Environment, headers and application setup
+│   ├── contact.php           # Contact validation and email delivery
+│   └── helpers.php            # Shared PHP helpers
 ├── templates/
-│   ├── 404.php            # Not-found page
-│   ├── about.php          # About page
-│   ├── contact.php        # Contact page
-│   ├── faq.php            # FAQ page
-│   ├── home.php           # Home page
-│   ├── layout.php         # Shared document/header/footer
-│   └── services.php       # Services page
-├── .env.example           # Example environment variables
+│   ├── 404.php
+│   ├── about.php
+│   ├── contact.php
+│   ├── faq.php
+│   ├── home.php
+│   ├── layout.php
+│   ├── privacy.php
+│   ├── services.php
+│   └── terms.php
+├── tests/
+│   └── smoke.php
+├── docs/
+│   ├── CUSTOMISATION.md
+│   └── DEPLOYMENT.md
+├── .env.example
 ├── .gitignore
 ├── composer.json
 └── README.md
 ```
 
-### What happens when a visitor opens the site?
+The web server should expose only `public/` as the document root.
 
-1. The web server points at `public/`.
-2. The request reaches the front controller.
-3. `public/index.php` loads the business configuration and shared helpers.
-4. The requested URL is matched against the site's routes.
-5. The matching template is rendered.
-6. `templates/layout.php` wraps the page with the shared HTML document, navigation and footer.
+## Routes
 
-This keeps public web assets separate from business configuration and application code.
+| Route | Purpose |
+|---|---|
+| `/` | Home page |
+| `/services` | Service catalogue |
+| `/about` | Business information and process |
+| `/faq` | Frequently asked questions |
+| `/contact` | Enquiry form and contact details |
+| `/privacy` | Privacy notice starter |
+| `/terms` | Terms of service starter |
+| `/robots.txt` | Search crawler instructions |
+| `/sitemap.xml` | XML sitemap |
 
-## Environment configuration
+## Production checklist
 
-`.env.example` documents environment values that future features may use. The current application does not need a real `.env` file.
+Before launch:
 
-Never commit passwords, API keys, SMTP credentials, private tokens, or other secrets to Git.
+1. Replace the fictional business content.
+2. Set a real HTTPS `SITE_URL`.
+3. Set `CONTACT_EMAIL` and `MAIL_FROM`.
+4. Confirm the host's PHP `mail()` transport works.
+5. Point the domain document root at `public/`.
+6. Set `APP_DEBUG=0`.
+7. Replace the example legal content with wording appropriate to the actual business and jurisdiction.
+8. Replace the example favicon and social links.
+9. Run the smoke tests and manually check every route.
 
-## Development workflow
+See `docs/DEPLOYMENT.md` for hosting guidance.
 
-Work on `feature/*` branches and merge completed work into `main`.
+## Design decisions
 
-Keep commits focused and descriptive. Update the README whenever setup, configuration, deployment or behaviour changes.
+This project does not include a database, admin dashboard, CMS, authentication system or third-party frontend framework. Those additions would increase operational complexity and are not necessary for the brochure-site use case.
 
-Before considering a feature complete, test it on a narrow mobile viewport and a desktop viewport, check keyboard navigation, and confirm that invalid URLs produce the intended 404 page.
-
-## Roadmap
-
-The reusable business-site system is intended to grow without becoming tied to one industry. Planned capabilities include:
-
-- Optional content sections controlled by configuration
-- Branding and theme configuration
-- Opening hours, social links and service areas
-- Testimonials and case studies for service businesses
-- Proper enquiry forms with validation and spam protection
-- Configurable email delivery
-- Optional booking integrations
-- Structured metadata and SEO controls
-- Accessibility and responsive testing
-- Production error handling and logging
-- Security hardening
-- Automated tests
-- Deployment guides for common PHP hosting environments
+The intended model is: **configure the business, deploy the site, generate enquiries, maintain the content**.
 
 ## Status
 
-This repository is under active development on `feature/business-startup`. The `main` branch is intended for completed, reviewable work.
+`feature/business-startup` is the development branch. This branch will be considered feature-complete after the current release-candidate pass. The finished starter is intended to be usable as a foundation for future business websites without further core feature work.
 
 ## License
 
-License details will be decided when the intended distribution model is established.
+No distribution licence has been selected yet. Add the appropriate licence before publishing this repository as a reusable package.

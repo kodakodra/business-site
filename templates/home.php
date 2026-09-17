@@ -1,77 +1,71 @@
 <section class="hero">
     <div class="container hero-grid">
         <div>
-            <p class="eyebrow">Service business</p>
-            <h1><?= e($business['tagline']) ?></h1>
-            <p class="lede"><?= e($business['description']) ?></p>
+            <p class="eyebrow"><?= e($business['hero']['eyebrow']) ?></p>
+            <h1><?= e($business['hero']['title']) ?></h1>
+            <p class="lede"><?= e($business['hero']['body']) ?></p>
             <div class="actions">
                 <a class="button" href="<?= e($business['primary_action']['href']) ?>"><?= e($business['primary_action']['label']) ?></a>
-                <a class="button button-secondary" href="/services">Explore services</a>
+                <a class="button button-secondary" href="<?= e($business['secondary_action']['href']) ?>"><?= e($business['secondary_action']['label']) ?></a>
             </div>
         </div>
         <aside class="hero-card" aria-label="Business highlights">
             <span class="hero-card-label">Why customers choose us</span>
             <ul>
-                <?php foreach ($business['highlights'] as $highlight): ?>
-                    <li><?= e($highlight) ?></li>
+                <?php foreach ($business['hero']['points'] as $point): ?>
+                    <li><?= e($point) ?></li>
                 <?php endforeach; ?>
             </ul>
         </aside>
     </div>
 </section>
 
-<section id="services" class="section">
-    <div class="container">
-        <div class="section-heading split-heading">
-            <div>
-                <p class="eyebrow">Services</p>
-                <h2>Help where you need it.</h2>
-            </div>
-            <p>Use these service blocks for fixed packages, bespoke work, recurring support or a mixture of all three.</p>
+<section class="section intro-section">
+    <div class="container intro-grid">
+        <div>
+            <p class="eyebrow"><?= e($business['intro']['eyebrow']) ?></p>
+            <h2><?= e($business['intro']['title']) ?></h2>
         </div>
-        <div class="cards">
-            <?php foreach (array_slice($business['services'], 0, 3) as $service): ?>
-                <article class="card">
-                    <h3><?= e($service['title']) ?></h3>
-                    <p class="card-lead"><?= e($service['summary']) ?></p>
-                    <p><?= e($service['description']) ?></p>
-                    <a class="text-link" href="/services">See service details <span aria-hidden="true">→</span></a>
-                </article>
-            <?php endforeach; ?>
-        </div>
-        <div class="section-link"><a href="/services">View all services →</a></div>
+        <p class="large-copy"><?= e($business['intro']['body']) ?></p>
     </div>
 </section>
 
-<section class="section section-muted">
+<section class="section" id="services">
     <div class="container">
-        <div class="section-heading">
-            <p class="eyebrow">Why work with us</p>
-            <h2>Built around the customer's actual requirement.</h2>
+        <div class="section-heading split-heading">
+            <div><p class="eyebrow">Services</p><h2>Choose the level of help that fits.</h2></div>
+            <a class="text-link" href="/services">View all services</a>
         </div>
-        <div class="feature-grid">
-            <?php foreach ($business['highlights'] as $index => $highlight): ?>
-                <article class="feature">
-                    <span class="feature-number"><?= e(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span>
-                    <p><?= e($highlight) ?></p>
+        <div class="cards service-cards">
+            <?php foreach (array_slice($business['services'], 0, 3) as $service): ?>
+                <article class="card service-card">
+                    <div class="card-topline"><span class="pill"><?= e($service['price']) ?></span></div>
+                    <h3><?= e($service['title']) ?></h3>
+                    <p><?= e($service['summary']) ?></p>
+                    <a class="text-link" href="/services#<?= e($service['slug']) ?>">See service details</a>
                 </article>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<section class="section section-muted" id="process">
+    <div class="container">
+        <div class="section-heading"><p class="eyebrow">How it works</p><h2>A simple path from enquiry to delivery.</h2></div>
+        <div class="process-grid">
+            <?php foreach ($business['process'] as $step): ?>
+                <article class="process-step"><span><?= e($step['number']) ?></span><h3><?= e($step['title']) ?></h3><p><?= e($step['body']) ?></p></article>
             <?php endforeach; ?>
         </div>
     </div>
 </section>
 
 <section class="section">
-    <div class="container split-panel">
-        <div>
-            <p class="eyebrow">How it works</p>
-            <h2>A straightforward process from first conversation to delivery.</h2>
-        </div>
-        <div class="mini-process">
-            <?php foreach ($business['process'] as $step): ?>
-                <div class="mini-process-item">
-                    <span><?= e($step['number']) ?></span>
-                    <div><strong><?= e($step['title']) ?></strong><p><?= e($step['description']) ?></p></div>
-                </div>
+    <div class="container">
+        <div class="section-heading"><p class="eyebrow">Why work with us</p><h2>Professional where it matters. Flexible where it helps.</h2></div>
+        <div class="cards benefit-cards">
+            <?php foreach ($business['benefits'] as $benefit): ?>
+                <article class="card"><h3><?= e($benefit['title']) ?></h3><p><?= e($benefit['body']) ?></p></article>
             <?php endforeach; ?>
         </div>
     </div>
@@ -79,22 +73,15 @@
 
 <section class="section testimonial-section">
     <div class="container narrow testimonial">
-        <p class="eyebrow">Customer feedback</p>
+        <p class="eyebrow">Client feedback</p>
         <blockquote>“<?= e($business['testimonial']['quote']) ?>”</blockquote>
         <p><strong><?= e($business['testimonial']['name']) ?></strong><br><?= e($business['testimonial']['role']) ?></p>
     </div>
 </section>
 
-<section class="section section-cta">
-    <div class="container contact-panel">
-        <div>
-            <p class="eyebrow">Ready to talk?</p>
-            <h2>Tell us what you are trying to achieve.</h2>
-            <p>We can work out the appropriate service or next step from the requirement rather than forcing you into a package that does not fit.</p>
-        </div>
-        <div class="contact-details">
-            <a class="button" href="/contact">Make an enquiry</a>
-            <a href="tel:<?= e($business['phone']) ?>"><?= e($business['phone']) ?></a>
-        </div>
+<section class="section cta-section">
+    <div class="container cta-panel">
+        <div><p class="eyebrow">Ready to start?</p><h2>Tell us what you are trying to achieve.</h2><p>Give us the basics and we will work out the sensible next step.</p></div>
+        <a class="button" href="/contact">Start an enquiry</a>
     </div>
 </section>

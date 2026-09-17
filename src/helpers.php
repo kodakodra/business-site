@@ -11,3 +11,124 @@ function url(string $path): string
 {
     return '/' . ltrim($path, '/');
 }
+
+function current_path(): string
+{
+    $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+    $path = '/' . trim($path, '/');
+    if ($path === '//' || $path === '') {
+        return '/';
+    }
+    return $path === '/index.php' ? '/' : $path;
+}
+
+function env(string $key, ?string $default = null): ?string
+{
+    static $loaded = false;
+    static $values = [];
+
+    if (!$loaded) {
+        $file = dirname(__DIR__) . '/.env';
+        if (is_file($file) && is_readable($file)) {
+            foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+                $line = trim($line);
+                if ($line === '' || str_starts_with($line, '#') || !str_contains($line, '=')) {
+                    continue;
+                }
+                [$name, $value] = explode('=', $line, 2);
+                $name = trim($name);
+                $value = trim($value);
+                if ((str_starts_with($value, '"') && str_ends_with($value, '"')) || (str_starts_with($value, "'") && str_ends_with($value, "'"))) {
+                    $value = substr($value, 1, -1);
+                }
+                $values[$name] = $value;
+            }
+        }
+        $loaded = true;
+    }
+
+    return array_key_exists($key, $values) ? $values[$key] : $default;
+}
+
+function is_post(): bool
+{
+    return ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST';
+}
+
+function csrf_token(): string
+{
+    start_session();
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function csrf_valid(?string $token): bool
+{
+    start_session();
+    return is_string($token) && $token !== '' && isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+}
+
+function start_session(): void
+{
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        return;
+    }
+    session_set_cookie_params([
+        'httponly' => true,
+        'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+        'samesite' => 'Lax',
+        'path' => '/',
+    ]);
+    session_start();
+}
+
+function flash_set(string $type, string $message): void
+{
+    start_session();
+    $_SESSION['flash'] = ['type' => $type, 'message' => $message];
+}
+
+function flash_get(): ?array
+{
+    start_session();
+    $flash = $_SESSION['flash'] ?? null;
+    unset($_SESSION['flash']);
+    return is_array($flash) ? $flash : null;
+}
+
+function redirect(string $path): never
+{
+    header('Location: ' . url($path), true, 303);
+    exit;
+}
+
+function site_origin(array $business): string
+{
+    $origin = rtrim((string) ($business['site_url'] ?? ''), '/');
+    return $origin !== '' ? $origin : 'http://localhost:8000';
+}
+
+function absolute_url(string $path, array $business): string
+{
+    return site_origin($business) . url($path);
+}
+
+function json_ld(array $business): string
+{
+    $data = [
+        '@context' => 'https://schema.org',
+        '@type' => $business['type'] ?? 'LocalBusiness',
+        'name' => $business['name'],
+        'description' => $business['description'],
+        'url' => site_origin($business),
+        'telephone' => $business['phone'],
+        'email' => $business['email'],
+        'areaServed' => $business['service_areas'],
+    ];
+    if (!empty($business['social'])) {
+        $data['sameAs'] = array_values(array_filter(array_column($business['social'], 'href')));
+    }
+    return json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?: '{}';
+}

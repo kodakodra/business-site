@@ -1,27 +1,3 @@
-<section class="page-intro">
-    <div class="container narrow">
-        <p class="eyebrow">FAQ</p>
-        <h1>Common questions, answered clearly.</h1>
-        <p class="lede">FAQs are useful for reducing friction before a customer makes an enquiry. Replace these examples with questions that real customers repeatedly ask.</p>
-    </div>
-</section>
-
-<section class="section">
-    <div class="container narrow faq-list">
-        <?php foreach ($business['faqs'] as $faq): ?>
-            <details class="faq-item">
-                <summary><?= e($faq['question']) ?></summary>
-                <p><?= e($faq['answer']) ?></p>
-            </details>
-        <?php endforeach; ?>
-    </div>
-</section>
-
-<section class="section section-muted">
-    <div class="container narrow center-copy">
-        <p class="eyebrow">Still have a question?</p>
-        <h2>Ask before you commit.</h2>
-        <p>A good brochure site should make contacting the business easy when the answer is not already on the page.</p>
-        <a class="button" href="/contact">Contact <?= e($business['name']) ?></a>
-    </div>
-</section>
+<section class="page-hero"><div class="container narrow"><p class="eyebrow">Frequently asked questions</p><h1>Useful answers before you get in touch.</h1><p class="lede">Keep common questions in configuration so a business can change them without editing the template.</p></div></section>
+<section class="section"><div class="container narrow faq-list"><?php foreach ($business['faq'] as $item): ?><details><summary><?= e($item['question']) ?></summary><div><p><?= e($item['answer']) ?></p></div></details><?php endforeach; ?></div></section>
+<section class="section section-muted"><div class="container cta-panel"><div><p class="eyebrow">Still have a question?</p><h2>Ask us directly.</h2></div><a class="button" href="/contact">Contact us</a></div></section>
