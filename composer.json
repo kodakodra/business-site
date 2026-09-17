@@ -1,0 +1,12 @@
+{
+    "name": "kodakodra/business-site",
+    "description": "Reusable PHP brochure-site foundation for small businesses and service providers.",
+    "type": "project",
+    "require": {
+        "php": ">=8.2"
+    },
+    "scripts": {
+        "serve": "php -S localhost:8000 -t public public/router.php",
+        "test": "php tests/smoke.php"
+    }
+}

@@ -1,0 +1,3 @@
+<section class="page-hero"><div class="container narrow"><p class="eyebrow">Frequently asked questions</p><h1>Useful answers before you get in touch.</h1><p class="lede">Keep common questions in configuration so a business can change them without editing the template.</p></div></section>
+<section class="section"><div class="container narrow faq-list"><?php foreach ($business['faq'] as $item): ?><details><summary><?= e($item['question']) ?></summary><div><p><?= e($item['answer']) ?></p></div></details><?php endforeach; ?></div></section>
+<section class="section section-muted"><div class="container cta-panel"><div><p class="eyebrow">Still have a question?</p><h2>Ask us directly.</h2></div><a class="button" href="/contact">Contact us</a></div></section>
