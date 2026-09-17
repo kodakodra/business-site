@@ -115,14 +115,15 @@ Configure these values in the server-side `.env` file:
 
 ```text
 CONTACT_EMAIL=hello@example.com
-MAIL_FROM=hello@example.com
-MAIL_FROM_NAME=Example Business
+MAIL_MAILER=smtp
 MAIL_HOST=smtp.example.com
 MAIL_PORT=587
 MAIL_USERNAME=hello@example.com
 MAIL_PASSWORD=your-smtp-password
 MAIL_ENCRYPTION=tls
 MAIL_AUTH=1
+MAIL_FROM_ADDRESS=hello@example.com
+MAIL_FROM_NAME="Example Business"
 MAIL_TIMEOUT=15
 ```
 
@@ -202,7 +203,7 @@ Before launch:
 
 1. Replace the fictional business content.
 2. Set a real HTTPS `SITE_URL`.
-3. Set `CONTACT_EMAIL` and `MAIL_FROM`.
+3. Set `CONTACT_EMAIL` and `MAIL_FROM_ADDRESS`.
 4. Install Composer dependencies with `composer install`.
 5. Configure and test the PHPMailer SMTP connection.
 6. Send and receive a real test enquiry from the deployed site.
