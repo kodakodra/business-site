@@ -42,12 +42,14 @@ git pull origin feature/business-startup
 From the project directory:
 
 ```bash
-php -S localhost:8000 -t public
+php -S localhost:8000 -t public public/router.php
 ```
 
 Then open `http://localhost:8000` in a browser.
 
-The web server must use `public/` as its document root. This prevents configuration and source files from being exposed as public web files.
+The extra `public/router.php` argument is intentional. It lets PHP's built-in development server serve real assets such as CSS directly while sending application URLs such as `/services` and `/contact` through the site's front controller.
+
+For production, configure the web server's document root as `public/`. The included `public/.htaccess` provides the equivalent routing rules for Apache.
 
 To stop the development server, press `Ctrl+C` in the terminal running it.
 
@@ -96,8 +98,10 @@ business-site/
 ├── config/
 │   └── business.php       # Business-specific content
 ├── public/
+│   ├── .htaccess          # Apache routing rules
 │   ├── css/app.css        # Browser-facing styles
-│   └── index.php          # Web entry point and router
+│   ├── index.php          # Web entry point and router
+│   └── router.php         # PHP development-server router
 ├── src/
 │   └── helpers.php        # Small reusable PHP helpers
 ├── templates/
@@ -117,10 +121,11 @@ business-site/
 ### What happens when a visitor opens the site?
 
 1. The web server points at `public/`.
-2. `public/index.php` loads the business configuration and shared helpers.
-3. The requested URL is matched against the site's routes.
-4. The matching template is rendered.
-5. `templates/layout.php` wraps the page with the shared HTML document, navigation and footer.
+2. The request reaches the front controller.
+3. `public/index.php` loads the business configuration and shared helpers.
+4. The requested URL is matched against the site's routes.
+5. The matching template is rendered.
+6. `templates/layout.php` wraps the page with the shared HTML document, navigation and footer.
 
 This keeps public web assets separate from business configuration and application code.
 
