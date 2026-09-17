@@ -56,8 +56,9 @@ function send_contact_message(array $data, array $business): bool
     require_once $autoload;
 
     $to = (string) env('CONTACT_EMAIL', $business['email']);
-    $from = (string) env('MAIL_FROM', $business['email']);
+    $from = (string) env('MAIL_FROM_ADDRESS', $business['email']);
     $fromName = (string) env('MAIL_FROM_NAME', $business['name']);
+    $mailer = strtolower(trim((string) env('MAIL_MAILER', 'smtp')));
     $host = trim((string) env('MAIL_HOST', ''));
     $port = (int) env('MAIL_PORT', '587');
     $username = (string) env('MAIL_USERNAME', '');
@@ -66,6 +67,10 @@ function send_contact_message(array $data, array $business): bool
     $auth = env('MAIL_AUTH', '1') !== '0';
     $timeout = max(5, (int) env('MAIL_TIMEOUT', '15'));
 
+    if ($mailer !== 'smtp') {
+        error_log('Contact email unavailable: MAIL_MAILER must be smtp.');
+        return false;
+    }
     if (!filter_var($to, FILTER_VALIDATE_EMAIL) || !filter_var($from, FILTER_VALIDATE_EMAIL) || $host === '') {
         error_log('Contact email unavailable: SMTP settings are incomplete.');
         return false;
