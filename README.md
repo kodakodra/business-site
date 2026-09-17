@@ -98,21 +98,41 @@ Normal business wording should be changed in configuration rather than copied in
 
 For a detailed guide see `docs/CUSTOMISATION.md`.
 
-## Environment settings
+## Contact form and email
 
-Copy `.env.example` to `.env` for local or server configuration:
+The contact form is fully functional, but email delivery depends on the environment where the site is running.
+
+The application uses PHP's built-in `mail()` function. A developer machine often has no mail transport configured, so local submissions may correctly show:
+
+> We could not send your enquiry right now. Please email us directly instead.
+
+This is expected when PHP cannot hand the message to a mail transport. It is not a validation failure and the form does not pretend that an email was sent.
+
+On a real server, configure:
 
 ```text
-APP_DEBUG=0
-APP_TIMEZONE=Europe/London
 SITE_URL=https://www.example.com
 CONTACT_EMAIL=hello@example.com
 MAIL_FROM=website@example.com
+APP_DEBUG=0
+APP_TIMEZONE=Europe/London
 ```
+
+The hosting provider must support PHP `mail()` or an equivalent configured transport. `MAIL_FROM` should be an address/domain the host permits sending from. A successful `mail()` call still does not guarantee inbox delivery.
+
+For exact setup and troubleshooting guidance see `docs/EMAIL.md` and `docs/DEPLOYMENT.md`.
 
 `.env` is ignored by Git. Never commit passwords, API keys, private tokens or mail credentials.
 
-The contact form uses PHP's built-in `mail()` transport. The host must provide a working mail transport. A successful call only means the message was accepted by that transport; it does not guarantee inbox delivery.
+## Environment settings
+
+Copy `.env.example` to `.env` when the application needs local or server-specific settings:
+
+```bash
+cp .env.example .env
+```
+
+The included example values are safe placeholders. Replace them before production use.
 
 ## Project structure
 
@@ -124,7 +144,7 @@ business-site/
 │   ├── css/app.css           # Browser-facing styles
 │   ├── favicon.svg           # Example favicon
 │   ├── index.php             # Application front controller
-│   ├── router.php            # Local PHP server router
+│   ├── router.php             # Local PHP server router
 │   └── .htaccess              # Apache routing rules
 ├── src/
 │   ├── bootstrap.php         # Environment, headers and application setup
@@ -144,7 +164,8 @@ business-site/
 │   └── smoke.php
 ├── docs/
 │   ├── CUSTOMISATION.md
-│   └── DEPLOYMENT.md
+│   ├── DEPLOYMENT.md
+│   └── EMAIL.md
 ├── .env.example
 ├── .gitignore
 ├── composer.json
@@ -174,14 +195,15 @@ Before launch:
 1. Replace the fictional business content.
 2. Set a real HTTPS `SITE_URL`.
 3. Set `CONTACT_EMAIL` and `MAIL_FROM`.
-4. Confirm the host's PHP `mail()` transport works.
-5. Point the domain document root at `public/`.
-6. Set `APP_DEBUG=0`.
-7. Replace the example legal content with wording appropriate to the actual business and jurisdiction.
-8. Replace the example favicon and social links.
-9. Run the smoke tests and manually check every route.
+4. Confirm the host's PHP mail transport works.
+5. Send and receive a real test enquiry from the deployed site.
+6. Point the domain document root at `public/`.
+7. Set `APP_DEBUG=0`.
+8. Replace the example legal content with wording appropriate to the actual business and jurisdiction.
+9. Replace the example favicon and social links.
+10. Run the smoke tests and manually check every route.
 
-See `docs/DEPLOYMENT.md` for hosting guidance.
+See `docs/CUSTOMISATION.md`, `docs/EMAIL.md` and `docs/DEPLOYMENT.md` for the detailed setup procedure.
 
 ## Design decisions
 
@@ -191,7 +213,7 @@ The intended model is: **configure the business, deploy the site, generate enqui
 
 ## Status
 
-`feature/business-startup` is the development branch. This branch will be considered feature-complete after the current release-candidate pass. The finished starter is intended to be usable as a foundation for future business websites without further core feature work.
+`feature/business-startup` is the development branch. The starter is considered feature-complete for the brochure/service-business use case. Future work should be treated as a new project or an explicitly reopened feature rather than an expected part of this baseline.
 
 ## License
 
